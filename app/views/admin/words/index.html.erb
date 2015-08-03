@@ -1,8 +1,42 @@
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#import").click(function(){
+      $.ajax({
+      success:function(data) {
+        var result = handle(data);
+
+      alert("I am here");
+      }
+      });
+    })
+  });
+    function get_audio(word){
+      word = word.replace(/ /gi, "-");
+      var yqlQuery = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'http%3A%2F%2Fdictionary.cambridge.org%2Fdictionary%2Fbritish%2F"+ word +"'%20and%20xpath%3D'%2F%2Fspan%5B%40data-src-mp3%5D'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
+      console.log(yqlQuery);
+      var result;
+      $.get(yqlQuery, function(data){
+        result = $(data).query.results.span[0].data-src-mp3 + "," +
+                 $(data).query.results.span[0].data-src-mp3;
+                 alert(result);
+      })
+    };
+    function handle(data){
+      var words = data.split(",");
+      var result, index;
+      for (index = 0; index < words.length; ++index){
+        if (words[index] != ""){
+          result[index] = get_audio(words[index])
+        }
+      }
+      return result;
+    };
+</script>
 <div>
   <h3><%= t ".title" %></h3>
     <%= form_tag admin_words_path, multipart: true do %>
       <%= file_field_tag :file %>
-      <%= submit_tag t ".btn_submit" %>
+      <%= submit_tag t(".btn_submit"), id: "import" %>
     <% end %>
   <h4><%= t ".file_structure" %></h4>
   <p><%= t ".guide1" %></p>

@@ -30,6 +30,7 @@ class Admin::WordsController < Admin::BaseController
   private
   def import file
     count = 0
+    word_list = ""
     begin
       CSV.foreach file.path, headers: true do |f|
         item_hash = f.to_hash
@@ -38,11 +39,13 @@ class Admin::WordsController < Admin::BaseController
           if Word.find_by(content: item_hash["word_content"]).nil?
             count = create_word(item_hash["word_content"],
               item_hash["true_answer"], item_hash["other_answers"], category.id, count)
+            word_list << item_hash["word_content"]
+            word_list << ","
           end
         end
       end
       check_update count
-      redirect_to categories_path
+      render json: {message: word_list}, status: :ok
     rescue Exception
       error
     end
